@@ -5,6 +5,7 @@ import com.npokrista.moneytransfer.model.Account;
 import com.npokrista.moneytransfer.repository.AccountRepository;
 import com.npokrista.moneytransfer.service.AccountService;
 import com.npokrista.moneytransfer.service.exception.IncorrectValueException;
+import com.npokrista.moneytransfer.service.exception.ObjectIsExist;
 import com.npokrista.moneytransfer.service.exception.NoEntityException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -18,7 +19,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class AccountServiceImpl implements AccountService {
+public class AccountServiceImpl implements AccountService  {
 
     private final AccountRepository accountRepository;
 
@@ -31,13 +32,17 @@ public class AccountServiceImpl implements AccountService {
 
 
     @Override
-    public AccountDto create(AccountDto accountDto) {
+    public AccountDto create(AccountDto accountDto) throws ObjectIsExist{
+        if(accountRepository.existsById(accountDto.getId())) {
+            throw new ObjectIsExist("Object is exist. Id = " + accountDto.getId());
+        }
         return modelMapper.map(accountRepository.save(modelMapper.map(accountDto, Account.class)), AccountDto.class);
     }
 
     @Override
     public AccountDto getById(Long id) {
-        return modelMapper.map(accountRepository.findById(id).orElseThrow(() -> new NoEntityException("Exception in getById method")), AccountDto.class);
+        return modelMapper.map(accountRepository.findById(id)
+                .orElseThrow(() -> new NoEntityException("Exception in getById method")), AccountDto.class);
     }
 
     @Override
@@ -58,8 +63,9 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional
-    public void withdraw(Long id, BigDecimal amount) {
-        AccountDto EntityInBase = modelMapper.map(accountRepository.findById(id).orElseThrow(() -> new NoEntityException("Exception in withdraw method")), AccountDto.class);
+    public void withdraw(Long id, BigDecimal amount) throws  IncorrectValueException{
+        AccountDto EntityInBase = modelMapper.map(accountRepository.findById(id)
+                .orElseThrow(() -> new NoEntityException("Exception in withdraw method")), AccountDto.class);
 
         if (amount.compareTo(EntityInBase.getBalance()) > 0){
             throw new IncorrectValueException("Exception in withdraw method");
@@ -72,7 +78,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional
-    public void transfer(Long from, Long to, BigDecimal amount) {
+    public void transfer(Long from, Long to, BigDecimal amount) throws IncorrectValueException {
         withdraw(from, amount);
         addMoney(to, amount);
     }

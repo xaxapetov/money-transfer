@@ -3,16 +3,14 @@ package com.npokrista.moneytransfer.rest;
 import com.npokrista.moneytransfer.dto.AccountDto;
 import com.npokrista.moneytransfer.service.AccountService;
 import com.npokrista.moneytransfer.service.exception.IncorrectValueException;
+import com.npokrista.moneytransfer.service.exception.ObjectIsExist;
 import com.npokrista.moneytransfer.service.exception.NoEntityException;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,7 +32,7 @@ import java.util.List;
 @Validated
 public class AccountController {
 
-    private final AccountService accountService = null;
+    private final AccountService accountService;
 
     @CrossOrigin
     @PostMapping(produces = "application/json; charset=utf-8")
@@ -46,9 +44,16 @@ public class AccountController {
     })
 
     public ResponseEntity<AccountDto> create(@NotNull @Valid@RequestBody AccountDto accountDto) {
-        return ResponseEntity.ok(accountService.create(accountDto));
-
-
+        ResponseEntity<AccountDto> response;
+        try{
+            accountService.create(accountDto);
+            response = ResponseEntity.ok().body(null);
+        }
+        catch(ObjectIsExist ex)
+        {
+            response = ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+        return response;
     }
 
     @CrossOrigin
@@ -69,7 +74,6 @@ public class AccountController {
             response = ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
         return response;
-        //return ResponseEntity.ok(accountService.getById(id));
     }
 
     @CrossOrigin
