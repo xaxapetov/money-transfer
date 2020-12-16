@@ -2,7 +2,6 @@ package com.npokrista.moneytransfer.rest;
 
 import com.npokrista.moneytransfer.dto.AccountDto;
 import com.npokrista.moneytransfer.service.AccountService;
-import com.npokrista.moneytransfer.service.exception.IncorrectValueException;
 import com.npokrista.moneytransfer.service.exception.ObjectIsExist;
 import com.npokrista.moneytransfer.service.exception.NoEntityException;
 import io.swagger.annotations.ApiOperation;
@@ -84,7 +83,7 @@ public class AccountController {
             @ApiResponse(code = 400, message = "Неправильный запрос"),
             @ApiResponse(code = 500, message = "Ошибка во время выполнения запроса")
     })
-    public ResponseEntity<List<AccountDto>> getAccount() {
+    public ResponseEntity<List<AccountDto>> getAccounts() {
         return ResponseEntity.ok(accountService.getAll());
     }
 
@@ -97,8 +96,16 @@ public class AccountController {
             @ApiResponse(code = 500, message = "Ошибка во время выполнения запроса")
     })
     public ResponseEntity<?> addMoney(@PathVariable("id") @Min(1) Long id, @PathVariable("amount") @DecimalMin(value = "0.0")BigDecimal amount) {
-        accountService.addMoney(id, amount);
-        return ResponseEntity.ok().build();
+        ResponseEntity<?> response;
+        try{
+            accountService.addMoney(id, amount);
+            response = ResponseEntity.ok().build();
+        }
+        catch(NoEntityException ex)
+        {
+            response = ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+        return response;
     }
 
     @CrossOrigin
@@ -116,7 +123,7 @@ public class AccountController {
             accountService.withdraw(id, amount);
             response = ResponseEntity.ok().build();
         }
-        catch(IncorrectValueException ex)
+        catch(Exception ex)
         {
             response = ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
@@ -132,7 +139,7 @@ public class AccountController {
             @ApiResponse(code = 500, message = "Ошибка во время выполнения запроса")
     })
     public ResponseEntity<?> transferMoney(@Min(1)@PathVariable("from") Long from,
-                                           @DecimalMin(value = "0.0")@PathVariable("to") Long to,
+                                           @Min(1)@PathVariable("to") Long to,
                                            @DecimalMin(value = "0.0")@PathVariable("amount") BigDecimal amount
     ) {
         ResponseEntity<?> response;
@@ -140,7 +147,7 @@ public class AccountController {
             accountService.transfer(from, to, amount);
             return ResponseEntity.ok().build();
         }
-        catch(IncorrectValueException ex)
+        catch(Exception ex)
         {
             response = ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }

@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 /**
  * Описание сущности счёта
  *
- * @author Ryadnov
+ * @author Ryadnov Nikita
  */
 @Table(name = "accounts", schema = "public")
 @Entity

@@ -2,6 +2,7 @@ package com.npokrista.moneytransfer.service;
 
 import com.npokrista.moneytransfer.dto.AccountDto;
 import com.npokrista.moneytransfer.service.exception.IncorrectValueException;
+import com.npokrista.moneytransfer.service.exception.NoEntityException;
 import com.npokrista.moneytransfer.service.exception.ObjectIsExist;
 
 import java.math.BigDecimal;
@@ -10,7 +11,7 @@ import java.util.List;
 /**
  * Сервис по работу со счетами
  *
- * @author Ryadnov
+ * @author Ryadnov Nikita
  */
 public interface AccountService<T> {
 
@@ -48,5 +49,5 @@ public interface AccountService<T> {
      * @param to     идентификатор получтеля
      * @param amount сумма средств
      */
-    void transfer(Long from, Long to, BigDecimal amount) throws IncorrectValueException;
+    void transfer(Long from, Long to, BigDecimal amount) throws IncorrectValueException, NoEntityException;
 }

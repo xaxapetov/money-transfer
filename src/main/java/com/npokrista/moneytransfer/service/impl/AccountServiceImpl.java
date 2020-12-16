@@ -58,6 +58,9 @@ public class AccountServiceImpl implements AccountService  {
     @Override
     @Transactional
     public void addMoney(Long id, BigDecimal amount) {
+        if(!accountRepository.existsById(id)){
+            throw new NoEntityException("Exception in addMoney method");
+        }
         accountRepository.addMoney(id, amount);
     }
 
@@ -78,7 +81,7 @@ public class AccountServiceImpl implements AccountService  {
 
     @Override
     @Transactional
-    public void transfer(Long from, Long to, BigDecimal amount) throws IncorrectValueException {
+    public void transfer(Long from, Long to, BigDecimal amount) throws IncorrectValueException, NoEntityException {
         withdraw(from, amount);
         addMoney(to, amount);
     }
