@@ -2,6 +2,7 @@ package com.npokrista.moneytransfer.rest;
 
 import com.npokrista.moneytransfer.dto.AccountDto;
 import com.npokrista.moneytransfer.service.AccountService;
+import com.npokrista.moneytransfer.service.exception.IncorrectValueException;
 import com.npokrista.moneytransfer.service.exception.ObjectIsExist;
 import com.npokrista.moneytransfer.service.exception.NoEntityException;
 import io.swagger.annotations.ApiOperation;
@@ -12,12 +13,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.net.URI;
 import java.util.List;
 
 /**
@@ -41,18 +44,17 @@ public class AccountController {
             @ApiResponse(code = 400, message = "Неправильный запрос"),
             @ApiResponse(code = 500, message = "Ошибка во время выполнения запроса")
     })
+    public ResponseEntity<AccountDto> create(@NotNull @Valid@RequestBody AccountDto accountDto) throws ObjectIsExist {
 
-    public ResponseEntity<AccountDto> create(@NotNull @Valid@RequestBody AccountDto accountDto) {
-        ResponseEntity<AccountDto> response;
-        try{
-            accountService.create(accountDto);
-            response = ResponseEntity.ok().body(null);
-        }
-        catch(ObjectIsExist ex)
-        {
-            response = ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        }
-        return response;
+            AccountDto newAccount = accountService.create(accountDto);
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("")
+                .buildAndExpand(newAccount)
+                .toUri();
+        System.out.println(location);
+        return ResponseEntity
+                .created(location)
+                .body(newAccount);
     }
 
     @CrossOrigin
@@ -63,16 +65,9 @@ public class AccountController {
             @ApiResponse(code = 400, message = "Неправильный запрос"),
             @ApiResponse(code = 500, message = "Ошибка во время выполнения запроса")
     })
-    public ResponseEntity<AccountDto> getAccount(@Min(1) @PathVariable("id") Long id) {
-        ResponseEntity<AccountDto> response;
-        try{
-            response = ResponseEntity.ok(accountService.getById(id));
-        }
-        catch(NoEntityException ex)
-        {
-            response = ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        }
-        return response;
+    public ResponseEntity<AccountDto> getAccount(@Min(1) @PathVariable("id") Long id) throws NoEntityException {
+
+        return ResponseEntity.ok(accountService.getById(id));
     }
 
     @CrossOrigin
@@ -95,17 +90,11 @@ public class AccountController {
             @ApiResponse(code = 400, message = "Неправильный запрос"),
             @ApiResponse(code = 500, message = "Ошибка во время выполнения запроса")
     })
-    public ResponseEntity<?> addMoney(@PathVariable("id") @Min(1) Long id, @PathVariable("amount") @DecimalMin(value = "0.0")BigDecimal amount) {
-        ResponseEntity<?> response;
-        try{
+    public ResponseEntity<?> addMoney(@PathVariable("id") @Min(1) Long id,
+                                      @PathVariable("amount") @DecimalMin(value = "0.0")BigDecimal amount) {
             accountService.addMoney(id, amount);
-            response = ResponseEntity.ok().build();
-        }
-        catch(NoEntityException ex)
-        {
-            response = ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        }
-        return response;
+            return ResponseEntity.ok().build();
+
     }
 
     @CrossOrigin
@@ -117,17 +106,9 @@ public class AccountController {
             @ApiResponse(code = 500, message = "Ошибка во время выполнения запроса")
     })
     public ResponseEntity<?> withdrawMoney(@Min(1) @PathVariable("id") Long id,
-                                           @DecimalMin(value = "0.0") @PathVariable("amount") BigDecimal amount) {
-        ResponseEntity<?> response;
-        try{
+                                           @DecimalMin(value = "0.0") @PathVariable("amount") BigDecimal amount) throws IncorrectValueException {
             accountService.withdraw(id, amount);
-            response = ResponseEntity.ok().build();
-        }
-        catch(Exception ex)
-        {
-            response = ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        }
-        return response;
+            return ResponseEntity.ok().build();
     }
 
     @CrossOrigin
@@ -140,18 +121,8 @@ public class AccountController {
     })
     public ResponseEntity<?> transferMoney(@Min(1)@PathVariable("from") Long from,
                                            @Min(1)@PathVariable("to") Long to,
-                                           @DecimalMin(value = "0.0")@PathVariable("amount") BigDecimal amount
-    ) {
-        ResponseEntity<?> response;
-        try{
+                                           @DecimalMin(value = "0.0")@PathVariable("amount") BigDecimal amount) throws IncorrectValueException {
             accountService.transfer(from, to, amount);
             return ResponseEntity.ok().build();
-        }
-        catch(Exception ex)
-        {
-            response = ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        }
-        return response;
-
     }
 }

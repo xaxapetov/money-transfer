@@ -1,4 +1,7 @@
-package com.npokrista.moneytransfer.service.ErrorsHandler;
+package com.npokrista.moneytransfer.service.Handlers;
+import com.npokrista.moneytransfer.service.exception.IncorrectValueException;
+import com.npokrista.moneytransfer.service.exception.NoEntityException;
+import com.npokrista.moneytransfer.service.exception.ObjectIsExist;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -11,7 +14,10 @@ import java.io.IOException;
 @ControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler(ConstraintViolationException.class)
+    @ExceptionHandler({ConstraintViolationException.class,
+            IncorrectValueException.class,
+            NoEntityException.class,
+            ObjectIsExist.class})
     public void constraintViolationException(HttpServletResponse response) throws IOException {
         response.sendError(HttpStatus.BAD_REQUEST.value());
     }

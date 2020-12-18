@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.npokrista.moneytransfer.dto.AccountDto;
 import com.npokrista.moneytransfer.service.AccountService;
-import com.npokrista.moneytransfer.service.exception.IncorrectValueException;
 import com.npokrista.moneytransfer.service.exception.NoEntityException;
 import com.npokrista.moneytransfer.service.exception.ObjectIsExist;
 import org.junit.jupiter.api.Test;
@@ -60,13 +59,13 @@ public class AccountControllerTest {
 
 
     @Test
-    public void createShouldReturn200() throws Exception{
+    public void createShouldReturn201() throws Exception{
 
         when(accountService.create(testDto)).thenReturn(testDto);
         System.out.println(accountService.create(testDto));
         this.mockMvc.perform(post("/api/v3/accounts")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(testDtoJSON(testDto))).andExpect(status().isOk());
+                .content(testDtoJSON(testDto))).andExpect(status().isCreated());
     }
 
     @Test

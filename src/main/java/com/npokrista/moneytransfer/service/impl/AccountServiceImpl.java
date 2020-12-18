@@ -10,9 +10,10 @@ import com.npokrista.moneytransfer.service.exception.NoEntityException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
-import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -40,7 +41,7 @@ public class AccountServiceImpl implements AccountService  {
     }
 
     @Override
-    public AccountDto getById(Long id) {
+    public AccountDto getById(Long id) throws NoEntityException{
         return modelMapper.map(accountRepository.findById(id)
                 .orElseThrow(() -> new NoEntityException("Exception in getById method")), AccountDto.class);
     }
@@ -56,7 +57,7 @@ public class AccountServiceImpl implements AccountService  {
     }
 
     @Override
-    @Transactional
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
     public void addMoney(Long id, BigDecimal amount) {
         if(!accountRepository.existsById(id)){
             throw new NoEntityException("Exception in addMoney method");
@@ -65,7 +66,7 @@ public class AccountServiceImpl implements AccountService  {
     }
 
     @Override
-    @Transactional
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
     public void withdraw(Long id, BigDecimal amount) throws  IncorrectValueException{
         AccountDto EntityInBase = modelMapper.map(accountRepository.findById(id)
                 .orElseThrow(() -> new NoEntityException("Exception in withdraw method")), AccountDto.class);
@@ -80,7 +81,7 @@ public class AccountServiceImpl implements AccountService  {
     }
 
     @Override
-    @Transactional
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
     public void transfer(Long from, Long to, BigDecimal amount) throws IncorrectValueException, NoEntityException {
         withdraw(from, amount);
         addMoney(to, amount);

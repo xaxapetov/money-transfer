@@ -23,9 +23,9 @@ public interface AccountService<T> {
 
     /**
      * @param id идентификатор счёта
-     * @return параметры созданного счёта
+     * @return список всех счетов
      */
-    AccountDto getById(Long id);
+    AccountDto getById(Long id) throws NoEntityException;
 
     /**
      * @return параметры созданного счёта
@@ -46,7 +46,7 @@ public interface AccountService<T> {
 
     /**
      * @param from   идентификатор счёта отправителя
-     * @param to     идентификатор получтеля
+     * @param to     идентификатор получателя
      * @param amount сумма средств
      */
     void transfer(Long from, Long to, BigDecimal amount) throws IncorrectValueException, NoEntityException;
