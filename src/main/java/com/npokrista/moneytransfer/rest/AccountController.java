@@ -43,9 +43,9 @@ public class AccountController {
             @ApiResponse(code = 400, message = "Неправильный запрос"),
             @ApiResponse(code = 500, message = "Ошибка во время выполнения запроса")
     })
-    public ResponseEntity<AccountDto> create(@NotNull @Valid@RequestBody AccountDto accountDto) throws ObjectIsExist {
+    public ResponseEntity<AccountDto> create(@NotNull @Valid @RequestBody AccountDto accountDto) throws ObjectIsExist {
 
-            AccountDto newAccount = accountService.create(accountDto);
+        AccountDto newAccount = accountService.create(accountDto);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("")
                 .buildAndExpand(newAccount)
@@ -90,9 +90,9 @@ public class AccountController {
             @ApiResponse(code = 500, message = "Ошибка во время выполнения запроса")
     })
     public ResponseEntity<?> addMoney(@PathVariable("id") @Min(1) Long id,
-                                      @PathVariable("amount") @DecimalMin(value = "0.0")BigDecimal amount) {
-            accountService.addMoney(id, amount);
-            return ResponseEntity.ok().build();
+                                      @PathVariable("amount") @DecimalMin(value = "0.0") BigDecimal amount) {
+        accountService.addMoney(id, amount);
+        return ResponseEntity.ok().build();
 
     }
 
@@ -106,8 +106,8 @@ public class AccountController {
     })
     public ResponseEntity<?> withdrawMoney(@Min(1) @PathVariable("id") Long id,
                                            @DecimalMin(value = "0.0") @PathVariable("amount") BigDecimal amount) throws IncorrectValueException {
-            accountService.withdraw(id, amount);
-            return ResponseEntity.ok().build();
+        accountService.withdraw(id, amount);
+        return ResponseEntity.ok().build();
     }
 
     @CrossOrigin
@@ -118,10 +118,10 @@ public class AccountController {
             @ApiResponse(code = 400, message = "Неправильный запрос"),
             @ApiResponse(code = 500, message = "Ошибка во время выполнения запроса")
     })
-    public ResponseEntity<?> transferMoney(@Min(1)@PathVariable("from") Long from,
-                                           @Min(1)@PathVariable("to") Long to,
-                                           @DecimalMin(value = "0.0")@PathVariable("amount") BigDecimal amount) throws IncorrectValueException {
-            accountService.transfer(from, to, amount);
-            return ResponseEntity.ok().build();
+    public ResponseEntity<?> transferMoney(@Min(1) @PathVariable("from") Long from,
+                                           @Min(1) @PathVariable("to") Long to,
+                                           @DecimalMin(value = "0.0") @PathVariable("amount") BigDecimal amount) throws IncorrectValueException {
+        accountService.transfer(from, to, amount);
+        return ResponseEntity.ok().build();
     }
 }

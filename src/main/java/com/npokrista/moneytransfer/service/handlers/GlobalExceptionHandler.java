@@ -1,4 +1,4 @@
-package com.npokrista.moneytransfer.service.Handlers;
+package com.npokrista.moneytransfer.service.handlers;
 import com.npokrista.moneytransfer.service.exception.IncorrectValueException;
 import com.npokrista.moneytransfer.service.exception.NoEntityException;
 import com.npokrista.moneytransfer.service.exception.ObjectIsExist;

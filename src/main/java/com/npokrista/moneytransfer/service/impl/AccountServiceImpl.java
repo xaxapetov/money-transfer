@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class AccountServiceImpl implements AccountService  {
+public class AccountServiceImpl implements AccountService {
 
     private final AccountRepository accountRepository;
 
@@ -33,15 +33,15 @@ public class AccountServiceImpl implements AccountService  {
 
 
     @Override
-    public AccountDto create(AccountDto accountDto) throws ObjectIsExist{
-        if(accountRepository.existsById(accountDto.getId())) {
+    public AccountDto create(AccountDto accountDto) throws ObjectIsExist {
+        if (accountRepository.existsById(accountDto.getId())) {
             throw new ObjectIsExist("Object is exist. Id = " + accountDto.getId());
         }
         return modelMapper.map(accountRepository.save(modelMapper.map(accountDto, Account.class)), AccountDto.class);
     }
 
     @Override
-    public AccountDto getById(Long id) throws NoEntityException{
+    public AccountDto getById(Long id) throws NoEntityException {
         return modelMapper.map(accountRepository.findById(id)
                 .orElseThrow(() -> new NoEntityException("Exception in getById method")), AccountDto.class);
     }
@@ -53,13 +53,12 @@ public class AccountServiceImpl implements AccountService  {
                 .stream()
                 .map(account -> modelMapper.map(account, AccountDto.class))
                 .collect(Collectors.toList());
-
     }
 
     @Override
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     public void addMoney(Long id, BigDecimal amount) {
-        if(!accountRepository.existsById(id)){
+        if (!accountRepository.existsById(id)) {
             throw new NoEntityException("Exception in addMoney method");
         }
         accountRepository.addMoney(id, amount);
@@ -67,17 +66,15 @@ public class AccountServiceImpl implements AccountService  {
 
     @Override
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public void withdraw(Long id, BigDecimal amount) throws  IncorrectValueException{
+    public void withdraw(Long id, BigDecimal amount) throws IncorrectValueException {
         AccountDto EntityInBase = modelMapper.map(accountRepository.findById(id)
                 .orElseThrow(() -> new NoEntityException("Exception in withdraw method")), AccountDto.class);
 
-        if (amount.compareTo(EntityInBase.getBalance()) > 0){
+        if (amount.compareTo(EntityInBase.getBalance()) > 0) {
             throw new IncorrectValueException("Exception in withdraw method");
-        }
-        else{
+        } else {
             accountRepository.withdraw(id, amount);
         }
-
     }
 
     @Override
